@@ -10,6 +10,7 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sfn_workflow": dataSourceWorkflow(),
+			"sfn_success": dataSourceSucceed(),
 			"sfn_pass": dataSourcePass(),
 			"sfn_wait": dataSourceWait(),
 		},

@@ -13,7 +13,12 @@ data "sfn_workflow" "example" {
   steps = [
     data.sfn_pass.pass.step,
     data.sfn_wait.wait.step,
+    data.sfn_success.success.step,
   ]
+}
+
+data "sfn_success" "success" {
+  comment = "Success!"
 }
 
 data "sfn_pass" "pass" {
