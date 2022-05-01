@@ -11,6 +11,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"sfn_workflow": dataSourceWorkflow(),
 			"sfn_pass": dataSourcePass(),
+			"sfn_wait": dataSourceWait(),
 		},
 	}
 }

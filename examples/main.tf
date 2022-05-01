@@ -12,6 +12,7 @@ data "sfn_workflow" "example" {
   start_step = data.sfn_pass.pass.name
   steps = [
     data.sfn_pass.pass.step,
+    data.sfn_wait.wait.step,
   ]
 }
 
@@ -28,7 +29,16 @@ data "sfn_pass" "pass" {
   }
   resultpath = "$.resultpath"
   outputpath = "$.outputpath"
-  next      = "end"
+  next       = data.sfn_wait.wait.name
+}
+
+data "sfn_wait" "wait" {
+  name       = "myWait"
+  comment    = "a comment...."
+  seconds    = 5
+  inputpath  = "$.inputpath"
+  outputpath = "$.outputpath"
+  next       = "end"
 }
 
 output "workflow" {
