@@ -15,6 +15,22 @@ data "sfn_workflow" "example" {
   ]
 }
 
+data "sfn_pass" "pass" {
+  name      = "myPass"
+  comment   = "Example Pass"
+  inputpath = "$.inputpath"
+  parameters = {
+    "parameter" = "$.parameter"
+  }
+
+  result = {
+    "result" = "$.result"
+  }
+  resultpath = "$.resultpath"
+  outputpath = "$.outputpath"
+  next      = "end"
+}
+
 output "workflow" {
   value = data.sfn_workflow.example.json
 }
