@@ -14,11 +14,18 @@ data "sfn_workflow" "example" {
     data.sfn_pass.pass.step,
     data.sfn_wait.wait.step,
     data.sfn_success.success.step,
+    data.sfn_fail.fail.step,
   ]
 }
 
 data "sfn_success" "success" {
   comment = "Success!"
+}
+
+data "sfn_fail" "fail" {
+  comment = "Failed"
+  error   = "this was the error"
+  cause   = "shit happens :("
 }
 
 data "sfn_pass" "pass" {
