@@ -14,6 +14,7 @@ func Provider() *schema.Provider {
 			"sfn_fail": dataSourceFail(),
 			"sfn_pass": dataSourcePass(),
 			"sfn_wait": dataSourceWait(),
+			"sfn_task": dataSourceTask(),
 		},
 	}
 }

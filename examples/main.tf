@@ -15,6 +15,7 @@ data "sfn_workflow" "example" {
     data.sfn_wait.wait.step,
     data.sfn_success.success.step,
     data.sfn_fail.fail.step,
+    data.sfn_task.list_roles.step,
   ]
 }
 
@@ -50,7 +51,14 @@ data "sfn_wait" "wait" {
   seconds    = 5
   inputpath  = "$.inputpath"
   outputpath = "$.outputpath"
-  next       = "end"
+  next       = data.sfn_task.list_roles.name
+}
+
+data "sfn_task" "list_roles" {
+  name = "list_roles"
+  comment = "List IAM Roles"
+  resource = "arn:aws:states:::aws-sdk:iam:listRoles"
+  next = "end"
 }
 
 output "workflow" {
