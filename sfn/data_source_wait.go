@@ -41,7 +41,7 @@ func dataSourceWait() *schema.Resource {
 			},
 			"next": {
 				Type: schema.TypeString,
-				Required: true,
+				Optional: true,
 				ValidateFunc: validation.StringLenBetween(0, 64),
 			},
 			"inputpath": {
