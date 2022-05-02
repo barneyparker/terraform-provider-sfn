@@ -2,21 +2,11 @@ package sfn
 
 import (
 	"context"
-	"encoding/json"
-	"strconv"
 	
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
-
-type SFNFail struct {
-	Type       string                 `json:"Type"`
-	Name       string                 `json:"Name"`
-	Comment    string                 `json:"Comment,omitempty"`
-	Error      string                 `json:"Error, ommitempty"`
-	Cause      string                 `json:"Cause,omitempty"`
-}
 
 func dataSourceFail() *schema.Resource {
 	return &schema.Resource{
@@ -53,38 +43,15 @@ func dataSourceFail() *schema.Resource {
 }
 
 func dataSourceFailRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	failStep := &SFNFail{}
-
-	failStep.Type = "Fail"
-
-	if comment, ok := d.GetOk("comment"); ok {
-		failStep.Comment = comment.(string)
-	}
-
-	if name, ok := d.GetOk("name"); ok {
-		failStep.Name = name.(string)
-	} else {
-		failStep.Name = "Fail"
-	}
+	step := ParseStep(d, "Fail")
 
 	if error, ok := d.GetOk("error"); ok {
-		failStep.Error = error.(string)
+		step["Error"] = error.(string)
 	}
 
 	if cause, ok := d.GetOk("cause"); ok {
-		failStep.Cause = cause.(string)
+		step["Cause"] = cause.(string)
 	}
 
-	jsonDoc, err := json.MarshalIndent(failStep, "", "  ")
-
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	jsonString := string(jsonDoc)
-
-	d.Set("step", jsonString)
-	d.SetId(strconv.Itoa(StringHashcode(jsonString)))
-
-	return nil
+	return MarshallResource(d, step)
 }

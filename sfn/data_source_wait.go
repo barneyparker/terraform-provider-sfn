@@ -2,23 +2,11 @@ package sfn
 
 import (
 	"context"
-	"encoding/json"
-	"strconv"
 	
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
-
-type SFNWait struct {
-	Type       string                 `json:"Type"`
-	Name       string                 `json:"Name"`
-	Comment    string                 `json:"Comment,omitempty"`
-	Seconds    int                    `json:"Seconds"`
-	Next       string                 `json:"Next"`
-	InputPath  string                 `json:"InputPath,omitempty"`
-	OutputPath string                 `json:"OutputPath,omitempty"`
-}
 
 func dataSourceWait() *schema.Resource {
 	return &schema.Resource{
@@ -65,44 +53,12 @@ func dataSourceWait() *schema.Resource {
 }
 
 func dataSourceWaitRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	waitStep := &SFNWait{}
-
-	waitStep.Type = "Wait"
-
-	if comment, ok := d.GetOk("comment"); ok {
-		waitStep.Comment = comment.(string)
-	}
-
-	if name, ok := d.GetOk("name"); ok {
-		waitStep.Name = name.(string)
-	}
+	step := ParseStep(d, "Wait")
+	ParseParameters(d, step)
 
 	if seconds, ok := d.GetOk("seconds"); ok {
-		waitStep.Seconds = seconds.(int)
+		step["Seconds"] = seconds.(int)
 	}
 
-	if next, ok := d.GetOk("next"); ok {
-		waitStep.Next = next.(string)
-	}
-
-	if inputpath, ok := d.GetOk("inputpath"); ok {
-		waitStep.InputPath = inputpath.(string)
-	}
-
-	if outputpath, ok := d.GetOk("outputpath"); ok {
-		waitStep.OutputPath = outputpath.(string)
-	}
-
-	jsonDoc, err := json.MarshalIndent(waitStep, "", "  ")
-
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	jsonString := string(jsonDoc)
-
-	d.Set("step", jsonString)
-	d.SetId(strconv.Itoa(StringHashcode(jsonString)))
-
-	return nil
+	return MarshallResource(d, step)
 }

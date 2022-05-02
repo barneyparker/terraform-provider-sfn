@@ -2,25 +2,11 @@ package sfn
 
 import (
 	"context"
-	"encoding/json"
-	"strconv"
 	
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
-
-type SFNPass struct {
-	Type       string                 `json:"Type"`
-	Name       string                 `json:"Name"`
-	Comment    string                 `json:"Comment,omitempty"`
-	Next       string                 `json:"Next"`
-	InputPath  string                 `json:"InputPath,omitempty"`
-	Parameters map[string]interface{} `json:"Parameters,omitempty"`
-	Result		 map[string]interface{} `json:"Result,omitempty"`
-	ResultPath string                 `json:"ResultPath,omitempty"`
-	OutputPath string                 `json:"OutputPath,omitempty"`
-}
 
 func dataSourcePass() *schema.Resource {
 	return &schema.Resource{
@@ -83,52 +69,7 @@ func dataSourcePass() *schema.Resource {
 }
 
 func dataSourcePassRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	passStep := &SFNPass{}
-
-	passStep.Type = "Pass"
-
-	if comment, ok := d.GetOk("comment"); ok {
-		passStep.Comment = comment.(string)
-	}
-
-	if name, ok := d.GetOk("name"); ok {
-		passStep.Name = name.(string)
-	}
-
-	if next, ok := d.GetOk("next"); ok {
-		passStep.Next = next.(string)
-	}
-
-	if inputpath, ok := d.GetOk("inputpath"); ok {
-		passStep.InputPath = inputpath.(string)
-	}
-
-	if parameters, ok := d.GetOk("parameters"); ok {
-		passStep.Parameters = parameters.(map[string]interface{})
-	}
-
-	if result, ok := d.GetOk("result"); ok {
-		passStep.Result = result.(map[string]interface{})
-	}
-
-	if resultpath, ok := d.GetOk("resultpath"); ok {
-		passStep.ResultPath = resultpath.(string)
-	}
-
-	if outputpath, ok := d.GetOk("outputpath"); ok {
-		passStep.OutputPath = outputpath.(string)
-	}
-
-	jsonDoc, err := json.MarshalIndent(passStep, "", "  ")
-
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	jsonString := string(jsonDoc)
-
-	d.Set("step", jsonString)
-	d.SetId(strconv.Itoa(StringHashcode(jsonString)))
-
-	return nil
+	step := ParseStep(d, "Pass")
+	ParseParameters(d, step)
+	return MarshallResource(d, step)
 }
