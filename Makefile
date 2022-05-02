@@ -28,6 +28,12 @@ install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAME}/${VERSION}/${OS_ARCH}
 	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAME}/${VERSION}/${OS_ARCH}
 
+check: install
+	cd examples && \
+	rm -rf .terraform.lock.hcl && \
+	terraform init && \
+	terraform plan
+
 test: 
 	go test -i $(TEST) || exit 1                                                   
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4                    
