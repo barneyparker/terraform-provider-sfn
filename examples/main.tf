@@ -8,13 +8,13 @@ terraform {
 }
 
 data "sfn_workflow" "example" {
-  comment    = "Example Workflow"
+  comment    = "Example Workflow x"
   start_step = data.sfn_pass.pass.name
   steps = [
     data.sfn_pass.pass.step,
-    data.sfn_wait.wait.step,
-    data.sfn_success.success.step,
-    data.sfn_fail.fail.step,
+    #data.sfn_wait.wait.step,
+    #data.sfn_success.success.step,
+    #data.sfn_fail.fail.step,
     data.sfn_task.list_roles.step,
   ]
 }
@@ -30,9 +30,9 @@ data "sfn_fail" "fail" {
 }
 
 data "sfn_pass" "pass" {
-  name      = "myPass"
-  comment   = "Example Pass"
-  inputpath = "$.inputpath"
+  name    = "myPass"
+  comment = "Example Pass"
+  /*inputpath = "$.inputpath"
   parameters = {
     "parameter" = "$.parameter"
   }
@@ -41,8 +41,8 @@ data "sfn_pass" "pass" {
     "result" = "$.result"
   }
   resultpath = "$.resultpath"
-  outputpath = "$.outputpath"
-  next       = data.sfn_wait.wait.name
+  outputpath = "$.outputpath"*/
+  next = data.sfn_task.list_roles.name
 }
 
 data "sfn_wait" "wait" {
@@ -55,10 +55,10 @@ data "sfn_wait" "wait" {
 }
 
 data "sfn_task" "list_roles" {
-  name = "list_roles"
-  comment = "List IAM Roles"
-  resource = "arn:aws:states:::aws-sdk:iam:listRoles"
-  next = "end"
+  name       = "list_roles"
+  comment    = "List IAM Roles"
+  resource   = "arn:aws:states:::aws-sdk:iam:listRoles"
+  resultpath = "$"
 }
 
 output "workflow" {

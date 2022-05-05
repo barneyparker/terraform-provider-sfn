@@ -39,6 +39,8 @@ func ParseStep(d *schema.ResourceData, Type string) map[string]interface{} {
 
 	if next, ok := d.GetOk("next"); ok {
 		step["Next"] = next.(string)
+	} else {
+		step["End"] = true
 	}
 
 	return step
@@ -51,6 +53,8 @@ func ParseParameters(d *schema.ResourceData, step map[string]interface{}) {
 
 	if parameters, ok := d.GetOk("parameters"); ok {
 		step["Parameters"] = parameters.(map[string]interface{})
+	} else {
+		step["Parameters"] = make(map[string]interface{})
 	}
 
 	if result, ok := d.GetOk("result"); ok {
@@ -74,6 +78,8 @@ func MarshallResource(d *schema.ResourceData, step map[string]interface{}) diag.
 	}
 
 	jsonString := string(jsonDoc)
+
+	//return diag.Errorf("Resource: %s", jsonString)
 
 	d.Set("step", jsonString)
 	d.SetId(strconv.Itoa(StringHashcode(jsonString)))

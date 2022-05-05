@@ -4,17 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"fmt"
+	"reflect"
 	
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
-
-type SFNWorkflow struct {
-	Comment    string        `json:"Comment,omitempty"`
-	StartsAt   string        `json:"StartsAt"`
-	Steps      []interface{} `json:"States"`
-}
 
 func dataSourceWorkflow() *schema.Resource {
 	return &schema.Resource{
@@ -46,31 +42,47 @@ func dataSourceWorkflow() *schema.Resource {
 }
 
 func dataSourceWorkflowRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	workFlow := &SFNWorkflow{}
-
-	if comment, ok := d.GetOk("comment"); ok {
-		workFlow.Comment = comment.(string)
-	}
-
 	if start_step, ok := d.GetOk("start_step"); ok {
-		workFlow.StartsAt = start_step.(string)
+		workFlow := map[string]interface{}{
+			"StartAt": start_step.(string),
+		}
+
+		states := make(map[string]interface{})
+		
+		if comment, ok := d.GetOk("comment"); ok {
+			workFlow["Comment"] = comment.(string)
+		}
+	
+		if steps, ok := d.GetOk("steps"); ok && len(steps.([]interface{})) > 0 {
+			fmt.Println("Steps: ", reflect.TypeOf(steps), steps)
+			for _, docStep := range steps.([]interface{}) {
+				var myStep map[string]interface{}
+				if err := json.Unmarshal([]byte(docStep.(string)), &myStep); err != nil {
+					return diag.FromErr(err)
+				}
+				
+				Name := myStep["Name"].(string)
+				delete(myStep, "Name")
+				states[Name] = myStep
+			}
+		}
+		
+		workFlow["States"] = states
+		
+		jsonDoc, err := json.MarshalIndent(workFlow, "", "  ")
+
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	
+		jsonString := string(jsonDoc)
+	
+		d.Set("json", jsonString)
+		d.SetId(strconv.Itoa(StringHashcode(jsonString)))
+	
+		return nil
+	} else {
+		// TODO: Should probably do something here...
+		return nil	
 	}
-
-	if steps, ok := d.GetOk("steps"); ok {
-		workFlow.Steps = steps.([]interface{})
-	}
-
-	jsonDoc, err := json.MarshalIndent(workFlow, "", "  ")
-
-	if err != nil {
-		// should never happen if the above code is correct
-		return diag.FromErr(err)
-	}
-
-	jsonString := string(jsonDoc)
-
-	d.Set("json", jsonString)
-	d.SetId(strconv.Itoa(StringHashcode(jsonString)))
-
-	return nil
 }
