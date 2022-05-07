@@ -49,3 +49,6 @@ vendor:
 
 tidy:
 	go mod tidy
+
+docs:
+	tfplugindocs generate
