@@ -1,4 +1,4 @@
-package sfn
+package stepfunctions
 
 import (
 	"context"
@@ -8,30 +8,40 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
-func dataSourceFail() *schema.Resource {
+func dataSourceWait() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceFailRead,
+		ReadContext: dataSourceWaitRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type: schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringLenBetween(0, 64),
+			},
+			"comment": {
+				Type: schema.TypeString,
+				Optional: true,
+				Default: "Pass Step",
+				ValidateFunc: validation.StringLenBetween(0, 512),
+			},
+			"seconds": {
+				Type: schema.TypeInt,
+				Required: true,
+			},
+			"next": {
+				Type: schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringLenBetween(0, 64),
-			},"comment": {
+			},
+			"inputpath": {
 				Type: schema.TypeString,
 				Optional: true,
-				Default: "Pass Step",
+				Default: "",
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
-			"error": {
+			"outputpath": {
 				Type: schema.TypeString,
 				Optional: true,
-				Default: "Pass Step",
-				ValidateFunc: validation.StringLenBetween(0, 512),
-			},
-			"cause": {
-				Type: schema.TypeString,
-				Optional: true,
-				Default: "Pass Step",
+				Default: "",
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
 			"step": {
@@ -42,15 +52,12 @@ func dataSourceFail() *schema.Resource {
 	}
 }
 
-func dataSourceFailRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	step := ParseStep(d, "Fail")
+func dataSourceWaitRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	step := ParseStep(d, "Wait")
+	ParseParameters(d, step)
 
-	if error, ok := d.GetOk("error"); ok {
-		step["Error"] = error.(string)
-	}
-
-	if cause, ok := d.GetOk("cause"); ok {
-		step["Cause"] = cause.(string)
+	if seconds, ok := d.GetOk("seconds"); ok {
+		step["Seconds"] = seconds.(int)
 	}
 
 	return MarshallResource(d, step)

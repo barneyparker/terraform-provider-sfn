@@ -1,4 +1,4 @@
-# Terraform Provider Sfn
+# Terraform Provider StepFunctions
 
 Terraform Data Provider for Step Functions
 

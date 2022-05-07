@@ -3,7 +3,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
   role_arn = aws_iam_role.iam_for_sfn.arn
   #type = "EXPRESS"
 
-  definition = data.sfn_workflow.example.json
+  definition = data.stepfunctions_workflow.example.json
 }
 
 resource "aws_iam_role" "iam_for_sfn" {

@@ -1,4 +1,4 @@
-module terraform-provider-sfn
+module terraform-provider-stepfunctions
 
 go 1.13
 

@@ -1,5 +1,5 @@
 .DS_Store
-terraform-provider-sfn
+terraform-provider-stepfunctions
 bin
 **/.terraform/*
 *.tfstate

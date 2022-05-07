@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
 HOSTNAME=barneyparker/aws
-NAME=sfn
+NAME=stepfunctions
 BINARY=terraform-provider-${NAME}
 VERSION=0.0.1
 OS_ARCH=linux_amd64
@@ -42,7 +42,7 @@ testacc:
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
 
 init:
-	go mod init terraform-provider-sfn
+	go mod init terraform-provider-stepfunctions
 
 vendor:
 	go mod vendor

@@ -1,35 +1,35 @@
 terraform {
   required_providers {
-    sfn = {
+    stepfunctions = {
       version = "~> 0.0.1"
-      source  = "barneyparker/aws/sfn"
+      source  = "barneyparker/aws/stepfunctions"
     }
   }
 }
 
-data "sfn_workflow" "example" {
+data "stepfunctions_workflow" "example" {
   comment    = "Example Workflow x"
-  start_step = data.sfn_pass.pass.name
+  start_step = data.stepfunctions_pass.pass.name
   steps = [
-    data.sfn_pass.pass.step,
-    #data.sfn_wait.wait.step,
-    #data.sfn_success.success.step,
-    #data.sfn_fail.fail.step,
-    data.sfn_task.list_roles.step,
+    data.stepfunctions_pass.pass.step,
+    #data.stepfunctions_wait.wait.step,
+    #data.stepfunctions_success.success.step,
+    #data.stepfunctions_fail.fail.step,
+    data.stepfunctions_task.list_roles.step,
   ]
 }
 
-data "sfn_success" "success" {
+data "stepfunctions_success" "success" {
   comment = "Success!"
 }
 
-data "sfn_fail" "fail" {
+data "stepfunctions_fail" "fail" {
   comment = "Failed"
   error   = "this was the error"
   cause   = "shit happens :("
 }
 
-data "sfn_pass" "pass" {
+data "stepfunctions_pass" "pass" {
   name    = "myPass"
   comment = "Example Pass"
   /*inputpath = "$.inputpath"
@@ -42,19 +42,19 @@ data "sfn_pass" "pass" {
   }
   resultpath = "$.resultpath"
   outputpath = "$.outputpath"*/
-  next = data.sfn_task.list_roles.name
+  next = data.stepfunctions_task.list_roles.name
 }
 
-data "sfn_wait" "wait" {
+data "stepfunctions_wait" "wait" {
   name       = "myWait"
   comment    = "a comment...."
   seconds    = 5
   inputpath  = "$.inputpath"
   outputpath = "$.outputpath"
-  next       = data.sfn_task.list_roles.name
+  next       = data.stepfunctions_task.list_roles.name
 }
 
-data "sfn_task" "list_roles" {
+data "stepfunctions_task" "list_roles" {
   name       = "list_roles"
   comment    = "List IAM Roles"
   resource   = "arn:aws:states:::aws-sdk:iam:listRoles"
@@ -62,5 +62,5 @@ data "sfn_task" "list_roles" {
 }
 
 output "workflow" {
-  value = data.sfn_workflow.example.json
+  value = data.stepfunctions_workflow.example.json
 }

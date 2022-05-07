@@ -1,4 +1,4 @@
-package sfn
+package stepfunctions
 
 import (
 	"context"
@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
-func dataSourceTask() *schema.Resource {
+func dataSourcePass() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceTaskRead,
+		ReadContext: dataSourcePassRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type: schema.TypeString,
@@ -22,11 +22,6 @@ func dataSourceTask() *schema.Resource {
 				Optional: true,
 				Default: "Pass Step",
 				ValidateFunc: validation.StringLenBetween(0, 512),
-			},
-			"resource": {
-				Type: schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringLenBetween(0, 64),
 			},
 			"next": {
 				Type: schema.TypeString,
@@ -73,13 +68,8 @@ func dataSourceTask() *schema.Resource {
 	}
 }
 
-func dataSourceTaskRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	step := ParseStep(d, "Task")
+func dataSourcePassRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	step := ParseStep(d, "Pass")
 	ParseParameters(d, step)
-
-	if resource, ok := d.GetOk("resource"); ok {
-		step["Resource"] = resource.(string)
-	}
-
 	return MarshallResource(d, step)
 }

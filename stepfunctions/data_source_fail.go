@@ -1,4 +1,4 @@
-package sfn
+package stepfunctions
 
 import (
 	"context"
@@ -8,40 +8,30 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
-func dataSourceWait() *schema.Resource {
+func dataSourceFail() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceWaitRead,
+		ReadContext: dataSourceFailRead,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type: schema.TypeString,
-				Required: true,
+				Optional: true,
 				ValidateFunc: validation.StringLenBetween(0, 64),
-			},
-			"comment": {
+			},"comment": {
 				Type: schema.TypeString,
 				Optional: true,
 				Default: "Pass Step",
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
-			"seconds": {
-				Type: schema.TypeInt,
-				Required: true,
-			},
-			"next": {
+			"error": {
 				Type: schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringLenBetween(0, 64),
-			},
-			"inputpath": {
-				Type: schema.TypeString,
-				Optional: true,
-				Default: "",
+				Default: "Pass Step",
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
-			"outputpath": {
+			"cause": {
 				Type: schema.TypeString,
 				Optional: true,
-				Default: "",
+				Default: "Pass Step",
 				ValidateFunc: validation.StringLenBetween(0, 512),
 			},
 			"step": {
@@ -52,12 +42,15 @@ func dataSourceWait() *schema.Resource {
 	}
 }
 
-func dataSourceWaitRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	step := ParseStep(d, "Wait")
-	ParseParameters(d, step)
+func dataSourceFailRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	step := ParseStep(d, "Fail")
 
-	if seconds, ok := d.GetOk("seconds"); ok {
-		step["Seconds"] = seconds.(int)
+	if error, ok := d.GetOk("error"); ok {
+		step["Error"] = error.(string)
+	}
+
+	if cause, ok := d.GetOk("cause"); ok {
+		step["Cause"] = cause.(string)
 	}
 
 	return MarshallResource(d, step)
